@@ -16,12 +16,13 @@
 
 ## 📦 Instalación
 
-Sigue estos sencillos pasos para instalar `cx` globalmente en tu sistema operativo (Linux / macOS) y poder ejecutarlo desde cualquier terminal con solo escribir `cx`:
+Sigue estos sencillos pasos para instalar `cx` globalmente en tu sistema (Linux / macOS) y poder ejecutarlo desde cualquier terminal con solo escribir `cx`:
 
-### 1. Clonar el repositorio
+### 1. Clonar el repositorio e instalar
 
 ```bash
-git clone [https://github.com/tu_usuario/tu_repositorio.git](https://github.com/tu_usuario/tu_repositorio.git)
-cd tu_repositorio
-
+git clone [https://github.com/Fabric047/Cargo-eXtension.git](https://github.com/Fabric047/Cargo-eXtension.git)
+cd Cargo-eXtension
+chmod +x install.sh
+./install.sh
 ```
