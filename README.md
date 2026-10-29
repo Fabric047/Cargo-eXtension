@@ -21,7 +21,7 @@ Sigue estos sencillos pasos para instalar `cx` globalmente en tu sistema (Linux 
 ### 1. Clonar el repositorio e instalar
 
 ```bash
-git clone [https://github.com/Fabric047/Cargo-eXtension.git](https://github.com/Fabric047/Cargo-eXtension.git)
+git clone https://github.com/Fabric047/Cargo-eXtension.git
 cd Cargo-eXtension
 chmod +x install.sh
 ./install.sh
