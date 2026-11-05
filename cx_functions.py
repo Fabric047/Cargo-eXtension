@@ -162,7 +162,77 @@ def modify_bin(file_path: Path, bins: dict, n:int, new_name: str = None, new_pat
     except FileNotFoundError:
         print("El archivo Cargo.toml no existe")
 
-def run_bin(bins: dict, N: int) -> None:
+
+def run_default(file_path, bins) -> None:
+    import re
+
+    pattern = re.compile(r'^\s*default-run\s*=\s*"([^"]+)"')
+    default_bin = None
+    linea_edition_idx = -1
+    lines = []
+
+    # Una sola lectura: guardamos las líneas y buscamos tanto default-run como la línea de edition
+    with file_path.open("r", encoding="utf-8") as f:
+        for idx, line in enumerate(f):
+            lines.append(line)
+            if default_bin is None:
+                match = pattern.search(line)
+                if match:
+                    default_bin = match.group(1)
+
+            if line.strip().startswith("edition"):
+                linea_edition_idx = idx
+
+    if not default_bin:
+        print("No hay un default-run definido en Cargo.toml")
+        agregar = input("Deseas agregar un default-run en Cargo.toml? (y/n) ").lower()
+        if agregar == "y":
+            print_bins(bins)
+            num = int(input("Escribe el N: "))
+            try:
+                # Seleccionamos el binario según el índice elegido
+                selected_bin = bins["name"][num]
+
+                if linea_edition_idx != -1:
+                    # Capturamos la sangría/indentación de la línea de 'edition'
+                    linea_edition = lines[linea_edition_idx]
+                    indentacion = linea_edition[: len(linea_edition) - len(linea_edition.lstrip())]
+                    
+                    # Insertamos inmediatamente después de edition
+                    lines.insert(linea_edition_idx + 1, f'{indentacion}default-run = "{selected_bin}"\n')
+
+                    with file_path.open("w", encoding="utf-8") as f:
+                        f.writelines(lines)
+
+                    print(f"✅ 'default-run = \"{selected_bin}\"' agregado con éxito.")
+                else:
+                    print("⚠️  No se encontró la clave 'edition' en Cargo.toml.")
+            except (IndexError, ValueError):
+                print("❌ Número de binario no válido.")
+        return
+
+    if default_bin in bins["name"]:
+        import subprocess
+
+        command = ["cargo", "run", "--bin", default_bin]
+        try:
+            subprocess.run(command, check=True)
+        except subprocess.CalledProcessError:
+            print(f"❌ El comando de cargo falló al ejecutar el binario '{default_bin}'")
+    else:
+        print(f"⚠️  El binario '{default_bin}' no está en la lista de bins válidos")
+
+
+
+def run_name(bins: dict, name: str) -> None:
+    if not bins.get("name") and name not in bins["name"]:
+        print(f"{name} no esta en Cargo.toml. \nEjecuta cx show para ver los nombres")
+        return
+    import subprocess
+    command = ["cargo", "run", "--bin", name]
+    subprocess.run(command)
+
+def run_N(bins: dict, N: int) -> None:
     if not bins.get("name") or N < 0 or N >= len(bins["name"]):
         print("El índice no existe.")
         return

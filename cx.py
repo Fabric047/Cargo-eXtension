@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from pathlib import Path
-from cx_functions import get_bins, print_bins, add_bin, remove_bin, modify_bin, run_bin, auto_fix
+from cx_functions import get_bins, print_bins, add_bin, remove_bin, modify_bin, run_default, run_name, run_N, auto_fix
 
 def main():
     file_path = Path("Cargo.toml")
@@ -47,10 +47,16 @@ def main():
     parser_modify.add_argument("path", type=str, nargs="?", default=None, help="Nuevo path del binario")
 
     # ---------------------------------------------------------
-    # 6. Comando: Run <N>
+    # 6. Comando: Run
     # ---------------------------------------------------------
-    parser_run = subparsers.add_parser("run", help="correr binario")
-    parser_run.add_argument("N", type=int, help="Numero del binario  correr")
+    parser_run = subparsers.add_parser("run", 
+                                       help="correr binario\nEjemplo: - `run [name]`\n- `run` (se ejecutara el default-run en Cargo.toml si lo hay)\n- `run N [N] (ejecuta `cx show` para saber el N de cada archivo)")
+    parser_run.add_argument("binary_name",type=str,nargs="?", default=None,
+                            help="Nombre del binario a correr (opcional si usas -N)",
+                            )
+    parser_run.add_argument("-N",type=int,dest="binary_number",
+        help="Numero del binario a correr (en lugar del nombre)",
+    )
 
     # ---------------------------------------------------------
     # Parsear los argumentos de la terminal
@@ -80,7 +86,14 @@ def main():
         modify_bin(file_path, bins, args.N, args.name, args.path)
 
     elif args.command == "run":
-        run_bin(bins, args.N)
+        if args.binary_number is not None:
+            run_N(bins, args.binary_number)
+            
+        elif args.binary_name is not None:
+            run_name(bins, args.binary_name)
+            
+        else:
+            run_default(file_path, bins)
 
 
 if __name__ == "__main__":
